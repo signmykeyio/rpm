@@ -13,10 +13,10 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-      - name: Install createrepo
+      - name: Install createrepo and RPM
         run: |
           sudo apt-get update
-          sudo apt-get install -y createrepo
+          sudo apt-get install -y createrepo-c rpm
 
       - name: Import GPG key
         id: import_gpg
@@ -29,13 +29,10 @@ jobs:
         run: |
           mkdir -p rpm-repository
           cp *.rpm rpm-repository/
-          createrepo rpm-repository/
-
-      - name: Sign RPMs and repodata
-        run: |
           for rpm in rpm-repository/*.rpm; do
             rpm --addsign --define="_gpg_name ${{ steps.import_gpg.outputs.keyid }}" $rpm
           done
+          createrepo_c rpm-repository/
           gpg --detach-sign --armor rpm-repository/repodata/repomd.xml
 
       - name: Copy index and CNAME
