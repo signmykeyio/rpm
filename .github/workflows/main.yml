@@ -8,10 +8,15 @@ on:
 jobs:
   deploy:
     name: Deploy
-    runs-on: fedora-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
+
+      - name: Install createrepo
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y createrepo
 
       - name: Import GPG key
         id: import_gpg
