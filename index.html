@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Signmykey RPM Repository</title>
+    <style>
+        pre {
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Signmykey RPM repository</h1>
+    <ul>
+        <li>Add Signmykey repository</li>
+        <pre>
+echo "[signmykey]
+name=Signmykey repo
+baseurl=https://rpm.signmykey.io/
+enabled=1
+gpgcheck=0
+repo_gpgcheck=1
+gpgkey=https://gpg.signmykey.io/signmykey.pub" > /etc/yum.repos.d/signmykey.repo
+        </pre>
+        <li>Install Signmykey package</li>
+        <pre>
+sudo yum install signmykey
+        </pre>
+    </ul>
+</body>
+</html>
