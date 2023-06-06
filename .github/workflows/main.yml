@@ -1,0 +1,45 @@
+name: Build and Deploy RPM Repository
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: fedora-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Import GPG key
+        id: import_gpg
+        uses: crazy-max/ghaction-import-gpg@v3
+        with:
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.PASSPHRASE }}
+
+      - name: Setup RPM Repository
+        run: |
+          mkdir -p rpm-repository
+          cp *.rpm rpm-repository/
+          createrepo rpm-repository/
+
+      - name: Sign RPMs and repodata
+        run: |
+          for rpm in rpm-repository/*.rpm; do
+            rpm --addsign --define="_gpg_name ${{ steps.import_gpg.outputs.keyid }}" $rpm
+          done
+          gpg --detach-sign --armor rpm-repository/repodata/repomd.xml
+
+      - name: Copy index and CNAME
+        run: |
+          cp index.html CNAME rpm-repository/
+
+      - name: Deploy to gh-pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./rpm-repository
+          publish_branch: gh-pages
